@@ -1,0 +1,417 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Whatchat</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav__inner">
+      <a href="#" class="nav__logo">
+        Whatchat
+      </a>
+      <ul class="nav__links">
+        <li><a href="#sobre">Sobre</a></li>
+        <li><a href="#solucoes">Soluções</a></li>
+        <li><a href="#processo">Processo</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="#contato" class="btn btn--sm">Contato</a></li>
+      </ul>
+      <button class="nav__hamburger" aria-label="Menu" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="nav__mobile" id="mobileMenu">
+      <a href="#sobre" onclick="toggleMenu()">Sobre</a>
+      <a href="#solucoes" onclick="toggleMenu()">Soluções</a>
+      <a href="#processo" onclick="toggleMenu()">Processo</a>
+      <a href="#faq" onclick="toggleMenu()">FAQ</a>
+      <a href="#contato" onclick="toggleMenu()">Contato</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="hero__bg">
+      <canvas id="heroCanvas"></canvas>
+    </div>
+    <div class="container hero__content">
+      <div class="hero__badge">
+        <span class="badge-dot"></span> Disponível para novos projetos
+      </div>
+      <h1 class="hero__title">
+        Automação de processos<br />
+        e integração de sistemas<br />
+        <span class="hero__accent">para a nova economia</span>
+      </h1>
+      <p class="hero__sub">
+        Conecto plataformas, elimino tarefas manuais e crio fluxos inteligentes
+        com N8N para empresas que querem escalar sem aumentar custos operacionais.
+      </p>
+      <div class="hero__ctas">
+        <a href="#contato" class="btn btn--primary">Solicitar diagnóstico gratuito</a>
+        <a href="#solucoes" class="btn btn--ghost">Ver soluções →</a>
+      </div>
+      <div class="hero__tools">
+        <span class="tool-badge">N8N</span>
+        <span class="tool-badge">WhatsApp API</span>
+        <span class="tool-badge">REST APIs</span>
+        <span class="tool-badge">Webhooks</span>
+        <span class="tool-badge">IA Generativa</span>
+        <span class="tool-badge">CRM / ERP</span>
+      </div>
+    </div>
+    <div class="hero__scroll">
+      <span>scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="stats">
+    <div class="container stats__grid">
+      <div class="stat-card">
+        <span class="stat-card__num">10x</span>
+        <span class="stat-card__label">mais rápido que processos manuais</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card__num">-80%</span>
+        <span class="stat-card__label">redução de erros operacionais</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card__num">24/7</span>
+        <span class="stat-card__label">fluxos rodando sem intervenção humana</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card__num">0</span>
+        <span class="stat-card__label">lock-in de plataformas caras</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOBRE -->
+  <section class="about section" id="sobre">
+    <div class="container about__inner">
+      <div class="about__text">
+        <div class="section-label">// sobre</div>
+        <h2 class="section-title">Tecnologia que <span class="accent">resolve</span>, não complica</h2>
+        <p>
+          Carlos Werneck — profissional especializado em automação de processos e integração de sistemas,
+          com foco em soluções para startups, e-commerces e empresas digitais.
+        </p>
+        <p>
+          Utilizo o N8N como ferramenta central para criar workflows automatizados que conectam
+          CRMs, ERPs, plataformas de marketing, ferramentas de comunicação e bancos de dados —
+          eliminando retrabalho, reduzindo erros e liberando tempo das equipes para o que realmente
+          importa: <strong>crescer o negócio.</strong>
+        </p>
+        <p>
+          Atuo na ponte entre tecnologia e operação, traduzindo processos manuais em fluxos
+          automatizados, escaláveis e de baixo custo de manutenção.
+        </p>
+      </div>
+      <div class="about__skills">
+        <div class="skill-group">
+          <h3>Automação de Processos</h3>
+          <ul>
+            <li>Workflows end-to-end com N8N (triggers, webhooks, agendamentos)</li>
+            <li>Automação de processos repetitivos (RPA)</li>
+            <li>Orquestração de dados entre múltiplas plataformas (ETL leve)</li>
+          </ul>
+        </div>
+        <div class="skill-group">
+          <h3>Integração de Sistemas</h3>
+          <ul>
+            <li>CRMs, ERPs, e-commerce, marketing e bancos de dados</li>
+            <li>Conexão de APIs REST e webhooks entre serviços</li>
+            <li>Sincronização automática de dados (vendas, estoque, financeiro)</li>
+          </ul>
+        </div>
+        <div class="skill-group">
+          <h3>IA Aplicada à Automação</h3>
+          <ul>
+            <li>Integração com IA generativa e agentes automatizados</li>
+            <li>Atendimento automatizado via WhatsApp, e-mail e chatbots</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUÇÕES -->
+  <section class="solutions section" id="solucoes">
+    <div class="container">
+      <div class="section-label">// soluções</div>
+      <h2 class="section-title">O que posso <span class="accent">automatizar</span> para você</h2>
+      <p class="section-sub">Cada solução é construída sob medida, com foco em ROI mensurável e baixo custo de manutenção.</p>
+      <div class="solutions__grid">
+
+        <div class="sol-card">
+          <div class="sol-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+          </div>
+          <h3>Automação de Atendimento</h3>
+          <p>Integração de WhatsApp, e-mail e chatbots com IA para responder, qualificar e direcionar clientes automaticamente.</p>
+          <div class="sol-card__tags">
+            <span>WhatsApp API</span><span>IA</span><span>CRM</span>
+          </div>
+        </div>
+
+        <div class="sol-card">
+          <div class="sol-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+          </div>
+          <h3>Sincronização de Sistemas</h3>
+          <p>Conecte seus sistemas de vendas, estoque e financeiro para que os dados fluam automaticamente, sem planilhas manuais.</p>
+          <div class="sol-card__tags">
+            <span>ERP</span><span>E-commerce</span><span>ETL</span>
+          </div>
+        </div>
+
+        <div class="sol-card">
+          <div class="sol-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+            </svg>
+          </div>
+          <h3>Geração e Qualificação de Leads</h3>
+          <p>Pipelines automatizados que capturam, qualificam e distribuem leads para o time comercial em tempo real.</p>
+          <div class="sol-card__tags">
+            <span>Marketing</span><span>CRM</span><span>Pipeline</span>
+          </div>
+        </div>
+
+        <div class="sol-card">
+          <div class="sol-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+          </div>
+          <h3>Notificações e Alertas Inteligentes</h3>
+          <p>Alertas automáticos entre equipes e ferramentas, garantindo que ninguém perca prazos ou informações críticas.</p>
+          <div class="sol-card__tags">
+            <span>Slack</span><span>E-mail</span><span>Webhook</span>
+          </div>
+        </div>
+
+        <div class="sol-card">
+          <div class="sol-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+          </div>
+          <h3>Dashboards e Relatórios Automáticos</h3>
+          <p>Relatórios alimentados em tempo real, sem necessidade de atualização manual.</p>
+          <div class="sol-card__tags">
+            <span>BI</span><span>Google Sheets</span><span>APIs</span>
+          </div>
+        </div>
+
+        <div class="sol-card">
+          <div class="sol-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </div>
+          <h3>Otimização de Processos Internos</h3>
+          <p>Mapeamento e automação de processos internos, eliminando gargalos e tarefas repetitivas.</p>
+          <div class="sol-card__tags">
+            <span>RPA</span><span>N8N</span><span>Workflow</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- DIFERENCIAIS -->
+  <section class="diff section">
+    <div class="container">
+      <div class="section-label">// diferenciais</div>
+      <h2 class="section-title">Por que trabalhar <span class="accent">comigo</span></h2>
+      <div class="diff__grid">
+        <div class="diff-item">
+          <span class="diff-item__num">01</span>
+          <h3>Soluções sob medida</h3>
+          <p>Sem dependência de pacotes fechados. Cada fluxo é construído para o seu processo específico.</p>
+        </div>
+        <div class="diff-item">
+          <span class="diff-item__num">02</span>
+          <h3>Foco em ROI</h3>
+          <p>Automações que geram economia mensurável de tempo e dinheiro. Resultado antes de tecnologia.</p>
+        </div>
+        <div class="diff-item">
+          <span class="diff-item__num">03</span>
+          <h3>Baixo custo de manutenção</h3>
+          <p>N8N open-source, sem lock-in de plataformas caras. Você mantém controle e independência.</p>
+        </div>
+        <div class="diff-item">
+          <span class="diff-item__num">04</span>
+          <h3>Integração não-invasiva</h3>
+          <p>Construída em torno das ferramentas que sua empresa já usa. Sem necessidade de trocar de sistema.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESSO -->
+  <section class="process section" id="processo">
+    <div class="container">
+      <div class="section-label">// processo</div>
+      <h2 class="section-title">Como <span class="accent">trabalhamos</span> juntos</h2>
+      <div class="process__steps">
+
+        <div class="step">
+          <div class="step__line"></div>
+          <div class="step__num">01</div>
+          <div class="step__content">
+            <h3>Diagnóstico</h3>
+            <p>Entendimento dos processos atuais e identificação de oportunidades de automação.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step__line"></div>
+          <div class="step__num">02</div>
+          <div class="step__content">
+            <h3>Mapeamento</h3>
+            <p>Desenho do fluxo ideal, ferramentas envolvidas e pontos de integração.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step__line"></div>
+          <div class="step__num">03</div>
+          <div class="step__content">
+            <h3>Desenvolvimento</h3>
+            <p>Construção dos workflows no N8N e configuração das integrações.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step__line"></div>
+          <div class="step__num">04</div>
+          <div class="step__content">
+            <h3>Testes e Ajustes</h3>
+            <p>Validação em ambiente real, ajustes finos e tratamento de erros.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step__num">05</div>
+          <div class="step__content">
+            <h3>Entrega e Suporte</h3>
+            <p>Implantação, documentação e acompanhamento pós-entrega com planos de manutenção.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq section" id="faq">
+    <div class="container faq__inner">
+      <div>
+        <div class="section-label">// faq</div>
+        <h2 class="section-title">Perguntas <span class="accent">frequentes</span></h2>
+      </div>
+      <div class="faq__list">
+
+        <details class="faq-item">
+          <summary>O que é N8N?</summary>
+          <p>É uma ferramenta open-source de automação de fluxos de trabalho, que permite conectar diferentes sistemas e criar processos automatizados sem necessidade de grandes desenvolvimentos de código.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Preciso trocar meus sistemas atuais?</summary>
+          <p>Não. A automação é construída em torno das ferramentas que sua empresa já utiliza. A ideia é conectar o que existe, não substituir.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Quanto tempo leva para implementar uma automação?</summary>
+          <p>Depende da complexidade, mas a maioria dos projetos vai de poucos dias a algumas semanas. O diagnóstico inicial já dá uma estimativa clara.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Vocês oferecem suporte após a entrega?</summary>
+          <p>Sim, com planos de manutenção e ajustes contínuos para garantir que os fluxos continuem funcionando conforme sua operação evolui.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Qual o custo de uma automação?</summary>
+          <p>Cada projeto é precificado de acordo com a complexidade e escopo. O diagnóstico gratuito serve justamente para entender o que precisa ser feito antes de qualquer proposta.</p>
+        </details>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FINAL -->
+  <section class="cta-final section" id="contato">
+    <div class="container cta-final__inner">
+      <div class="cta-final__text">
+        <div class="section-label">// contato</div>
+        <h2 class="section-title">Pronto para automatizar<br /><span class="accent">sua operação?</span></h2>
+        <p>Vamos conversar sobre como a automação pode reduzir custos, eliminar tarefas manuais e acelerar o crescimento do seu negócio.</p>
+        <div class="cta-final__btns">
+          <a href="https://wa.me/5521995132305" class="btn btn--primary" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Falar no WhatsApp
+          </a>
+          <a href="mailto:carloswerneck19@gmail.com" class="btn btn--ghost">Enviar e-mail →</a>
+        </div>
+      </div>
+      <form class="contact-form" onsubmit="handleForm(event)">
+        <div class="form-group">
+          <label for="name">Nome</label>
+          <input type="text" id="name" placeholder="Seu nome" required />
+        </div>
+        <div class="form-group">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" placeholder="seu@email.com" required />
+        </div>
+        <div class="form-group">
+          <label for="company">Empresa</label>
+          <input type="text" id="company" placeholder="Nome da empresa" />
+        </div>
+        <div class="form-group">
+          <label for="message">Como posso ajudar?</label>
+          <textarea id="message" rows="4" placeholder="Descreva brevemente seu processo ou desafio..."></textarea>
+        </div>
+        <button type="submit" class="btn btn--primary btn--full">Agendar diagnóstico gratuito</button>
+        <p class="form-note">Respondo em até 24 horas.</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <a href="#" class="nav__logo">
+        Whatchat
+      </a>
+      <p class="footer__copy">© 2026 — Automações & Integrações com N8N</p>
+      <div class="footer__links">
+        <a href="#sobre">Sobre</a>
+        <a href="#solucoes">Soluções</a>
+        <a href="#processo">Processo</a>
+        <a href="#contato">Contato</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
