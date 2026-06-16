@@ -686,6 +686,12 @@ strong { color: var(--text); font-weight: 600; }
   color: var(--text-dim);
   text-align: center;
 }
+.form-note a {
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.form-note a:hover { color: var(--accent); }
 
 /* ── Footer ── */
 .footer {
