@@ -2,7 +2,8 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0d14" />
   <title>Autodiagnóstico de automação — Whatchat</title>
   <meta name="description" content="Descubra em que estágio de automação sua empresa está. Responda 10 perguntas rápidas, veja seu resultado na hora e receba o relatório completo por e-mail." />
 
@@ -14,142 +15,41 @@
   <meta property="og:locale" content="pt_BR" />
 
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="diagnostico.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 </head>
-<body>
+<body class="dxp">
 
-  <nav class="nav scrolled">
-    <div class="nav__inner">
-      <a href="/" class="nav__logo">Whatchat</a>
-      <a href="/" class="nav__back">Voltar ao site</a>
-    </div>
-  </nav>
+  <a href="/" class="dx-logo">Whatchat</a>
+  <div class="dx-progress" id="dxProgress" role="progressbar" aria-label="Progresso do autodiagnóstico" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+    <div id="dxBar"></div>
+  </div>
 
-  <main class="dx">
-    <div class="container dx__inner">
-
-      <!-- 1. Entrada -->
-      <section id="dxIntro" aria-labelledby="dxIntroTitle">
-        <div class="section-label">Autodiagnóstico</div>
-        <h1 class="dx-title" id="dxIntroTitle">Em que estágio da automação sua empresa está?</h1>
-        <p class="dx-lead">
-          Responda 10 perguntas rápidas e veja seu estágio na hora, com uma primeira diretriz prática.
-          O relatório completo, com prioridades e próximos passos, chega no seu e-mail.
-        </p>
-        <p class="dx-meta"><span>10 perguntas</span><span>cerca de 3 minutos</span><span>resultado na hora</span></p>
-        <button type="button" class="btn btn--primary btn--lg" id="dxStart">Começar</button>
-      </section>
-
-      <!-- 2. Perguntas -->
-      <section id="dxQuiz" hidden aria-label="Perguntas do autodiagnóstico">
-        <div class="dx-top">
-          <span id="dxCount" aria-live="polite">Pergunta 1 de 10</span>
-          <span id="dxArea"></span>
-        </div>
-        <div class="dx-progress" role="progressbar" aria-label="Progresso" aria-valuemin="0" aria-valuemax="10" aria-valuenow="1">
-          <div class="dx-progress__fill" id="dxBar"></div>
-        </div>
-        <div id="dxQuestion"></div>
-        <div class="dx-actions">
-          <button type="button" class="btn btn--ghost" id="dxBack">Voltar</button>
-          <button type="button" class="btn btn--primary" id="dxNext" disabled>Continuar</button>
-        </div>
-      </section>
-
-      <!-- 3. Resultado parcial + porta de contato -->
-      <section id="dxResult" hidden aria-labelledby="dxStageName">
-        <div class="section-label">Seu resultado</div>
-        <h1 class="dx-stage__name" id="dxStageName" tabindex="-1"></h1>
-        <p class="dx-stage__score" id="dxScore"></p>
-        <ol class="dx-track" id="dxTrack" aria-label="Estágios de automação"></ol>
-        <p class="dx-lead" id="dxStageText"></p>
-
-        <h2 class="dx-h2">Como você está em cada área</h2>
-        <ul class="dx-areas" id="dxAreas"></ul>
-
-        <div class="dx-tip">
-          <p class="dx-tip__label">Primeiro passo recomendado</p>
-          <p id="dxTip"></p>
-        </div>
-
-        <div class="dx-gate">
-          <h2 class="dx-gate__title">Receba o relatório completo por e-mail</h2>
-          <ul class="dx-gate__list">
-            <li>Nota detalhada em cada área, com o que está funcionando e o que está travando</li>
-            <li>As três automações que eu priorizaria para o seu perfil</li>
-            <li>Um roteiro de próximos passos para o seu estágio</li>
-          </ul>
-
-          <form id="dxForm" novalidate>
-            <div class="form-group">
-              <label for="dxName">Nome</label>
-              <input type="text" id="dxName" name="nome" autocomplete="name" placeholder="Seu nome" required />
-            </div>
-            <div class="form-group">
-              <label for="dxEmail">E-mail</label>
-              <input type="email" id="dxEmail" name="email" autocomplete="email" placeholder="seu@email.com" required />
-            </div>
-            <div class="form-group">
-              <label for="dxPhone">WhatsApp</label>
-              <input type="tel" id="dxPhone" name="whatsapp" autocomplete="tel" inputmode="tel" placeholder="(21) 99999-9999" required />
-            </div>
-            <div class="form-group">
-              <label for="dxCompany">Empresa <span class="dx-optional">(opcional)</span></label>
-              <input type="text" id="dxCompany" name="empresa" autocomplete="organization" placeholder="Nome da empresa" />
-            </div>
-
-            <!-- Campo isca contra robôs: pessoas não veem nem preenchem -->
-            <div class="dx-hp" aria-hidden="true">
-              <label for="dxWebsite">Site</label>
-              <input type="text" id="dxWebsite" name="website" tabindex="-1" autocomplete="off" />
-            </div>
-
-            <label class="dx-check">
-              <input type="checkbox" id="dxConsentPolicy" required />
-              <span>Li e aceito a <a href="/privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a> e autorizo o uso dos meus dados para gerar e enviar o relatório.</span>
-            </label>
-            <label class="dx-check">
-              <input type="checkbox" id="dxConsentContact" />
-              <span>Aceito receber contato da Whatchat por WhatsApp ou e-mail sobre propostas e serviços de automação. Posso revogar quando quiser.</span>
-            </label>
-
-            <p class="dx-error" id="dxFormError" role="alert" hidden></p>
-            <button type="submit" class="btn btn--primary btn--lg btn--full" id="dxSubmit">Receber relatório completo</button>
-          </form>
-        </div>
-
-        <button type="button" class="dx-restart" id="dxRestart">Refazer o autodiagnóstico</button>
-      </section>
-
-      <!-- 4. Confirmação -->
-      <section id="dxDone" hidden aria-labelledby="dxDoneTitle">
-        <div class="section-label">Relatório enviado</div>
-        <h1 class="dx-title" id="dxDoneTitle" tabindex="-1">Seu relatório está a caminho</h1>
-        <p class="dx-lead">Enviei para <strong id="dxDoneEmail"></strong>. Se não aparecer em alguns minutos, confira a caixa de spam.</p>
-        <p class="dx-lead">
-          Quer ir além do relatório? No diagnóstico gratuito, olhamos juntos os seus processos e eu aponto por onde começar.
-        </p>
-        <div class="dx-done__btns">
-          <a href="https://wa.me/5521995132305" class="btn btn--primary btn--lg" target="_blank" rel="noopener">Falar no WhatsApp</a>
-          <a href="/#contato" class="btn btn--ghost btn--lg">Solicitar diagnóstico gratuito</a>
-        </div>
-      </section>
-
-    </div>
+  <main class="dx-stage" id="dxStage" aria-live="polite">
+    <noscript><p class="dx-lead">Ative o JavaScript para fazer o autodiagnóstico, ou fale comigo pelo <a href="https://wa.me/5521995132305">WhatsApp</a>.</p></noscript>
   </main>
 
-  <footer class="footer">
-    <div class="container footer__inner">
-      <a href="/" class="nav__logo">Whatchat</a>
-      <p class="footer__copy">© 2026 — Automações & Integrações com N8N</p>
-      <div class="footer__links">
-        <a href="/privacidade.html">Política de Privacidade</a>
-        <a href="/termos.html">Termos de Uso</a>
-      </div>
+  <footer class="dx-actions" id="dxActions">
+    <button type="button" class="dx-back" id="dxBack" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Voltar
+    </button>
+    <div class="dx-actions__right">
+      <span class="dx-enter" id="dxEnter">pressione <kbd>Enter</kbd></span>
+      <button type="button" class="dx-next" id="dxNext">
+        <span id="dxNextLabel">Começar</span>
+        <span class="dx-next__circle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+      </button>
     </div>
   </footer>
+
+  <!-- Campo isca contra robôs: pessoas não veem nem preenchem -->
+  <div class="dx-hp" aria-hidden="true">
+    <label for="dxWebsite">Site</label>
+    <input type="text" id="dxWebsite" name="website" tabindex="-1" autocomplete="off" />
+  </div>
 
   <script src="diagnostico.js"></script>
 </body>

@@ -1,11 +1,11 @@
-/* Autodiagnóstico de automação
+/* Autodiagnóstico de automação, em tela cheia (uma pergunta por vez)
  * Fluxo: entrada → 10 perguntas → resultado parcial → contato + consentimento → envio ao webhook.
  * O relatório completo NÃO está neste arquivo: ele é gerado e enviado por e-mail pelo N8N.
  */
 (function () {
   'use strict';
 
-  // Webhook do N8N que recebe o diagnóstico (crie o workflow com este caminho)
+  // Webhook do N8N que recebe o diagnóstico (workflow "Autodiagnóstico Whatchat")
   const WEBHOOK_URL = 'https://webhook.whatchat.app.br/webhook/diagnostico-whatchat';
   // Versão dos textos de consentimento exibidos. Mude ao alterar os textos da tela.
   const TEXT_VERSION = '2026-11-24-v1';
@@ -19,11 +19,13 @@
   ];
   const LEVELS = ['Inicial', 'Em evolução', 'Avançado'];
 
-  // Cada resposta vale de 0 a 3 pontos, na ordem das opções
-  const QUESTIONS = [
+  // Perguntas pontuadas: cada resposta vale de 0 a 3, na ordem das opções.
+  // "em" é o trecho do título que recebe destaque.
+  const QUIZ = [
     {
-      id: 'atendimento_entrada', area: 'atendimento',
+      id: 'atendimento_entrada', area: 'atendimento', kind: 'choice', scored: true,
       text: 'Quando um novo lead ou cliente entra em contato (WhatsApp, e-mail ou formulário), o que acontece?',
+      em: 'entra em contato',
       options: [
         'Alguém da equipe vê, responde e anota o contato à mão',
         'A equipe responde à mão, mas os contatos ficam registrados em um CRM ou planilha compartilhada',
@@ -32,8 +34,9 @@
       ],
     },
     {
-      id: 'atendimento_followup', area: 'atendimento',
+      id: 'atendimento_followup', area: 'atendimento', kind: 'choice', scored: true,
       text: 'Como é feito o acompanhamento de leads e clientes depois do primeiro contato?',
+      em: 'acompanhamento',
       options: [
         'Depende de alguém lembrar ou de anotações soltas',
         'Temos lembretes no CRM ou na agenda, mas disparados manualmente',
@@ -42,8 +45,9 @@
       ],
     },
     {
-      id: 'dados_pedido', area: 'dados',
+      id: 'dados_pedido', area: 'dados', kind: 'choice', scored: true,
       text: 'Quando uma venda ou pedido acontece, como a informação chega ao estoque, ao financeiro e a outros sistemas?',
+      em: 'a informação chega',
       options: [
         'Alguém digita ou copia o dado em cada sistema',
         'Exportamos e importamos planilhas de tempos em tempos',
@@ -52,13 +56,15 @@
       ],
     },
     {
-      id: 'dados_retrabalho', area: 'dados',
+      id: 'dados_retrabalho', area: 'dados', kind: 'choice', scored: true,
       text: 'Com que frequência sua equipe digita o mesmo dado em mais de um lugar?',
+      em: 'mesmo dado',
       options: ['O tempo todo', 'Várias vezes por semana', 'De vez em quando', 'Quase nunca'],
     },
     {
-      id: 'tarefas_tempo', area: 'tarefas',
+      id: 'tarefas_tempo', area: 'tarefas', kind: 'choice', scored: true,
       text: 'Quanto do tempo da equipe vai para tarefas repetitivas, como copiar dados, enviar lembretes, montar relatórios e conferir planilhas?',
+      em: 'tarefas repetitivas',
       options: [
         'Boa parte da semana',
         'Algumas horas por dia',
@@ -67,8 +73,9 @@
       ],
     },
     {
-      id: 'monitoramento_numeros', area: 'monitoramento',
+      id: 'monitoramento_numeros', area: 'monitoramento', kind: 'choice', scored: true,
       text: 'Como você acompanha os números do negócio (vendas, atendimento, financeiro)?',
+      em: 'acompanha os números',
       options: [
         'Só quando alguém levanta os dados à mão',
         'Em planilhas atualizadas manualmente',
@@ -77,8 +84,9 @@
       ],
     },
     {
-      id: 'monitoramento_falhas', area: 'monitoramento',
+      id: 'monitoramento_falhas', area: 'monitoramento', kind: 'choice', scored: true,
       text: 'Se um processo falha (um pedido não sincroniza, um lead some), como você fica sabendo?',
+      em: 'fica sabendo',
       options: [
         'Só quando o cliente reclama',
         'Quando alguém percebe por acaso',
@@ -87,8 +95,9 @@
       ],
     },
     {
-      id: 'ia_uso', area: 'ia',
+      id: 'ia_uso', area: 'ia', kind: 'choice', scored: true,
       text: 'Como a IA é usada na operação hoje?',
+      em: 'IA',
       options: [
         'Não usamos',
         'Algumas pessoas usam por conta própria (como o ChatGPT), fora dos processos',
@@ -96,19 +105,16 @@
         'Está integrada aos fluxos, como atendimento, triagem e classificação, com supervisão',
       ],
     },
-  ];
-
-  // Perguntas de perfil: não entram na pontuação
-  const PROFILE = [
+    // Perguntas de perfil: não entram na pontuação
     {
-      id: 'tamanho', type: 'single', label: 'Sobre você',
-      text: 'Qual o tamanho da sua empresa?',
+      id: 'tamanho', kind: 'choice', label: 'Sobre você',
+      text: 'Qual o tamanho da sua empresa?', em: 'tamanho',
       options: ['Só eu', '2 a 10 pessoas', '11 a 50 pessoas', 'Mais de 50 pessoas'],
     },
     {
-      id: 'ferramentas', type: 'multi', label: 'Sobre você',
-      text: 'Quais ferramentas você já usa?',
-      hint: 'Marque todas que se aplicam',
+      id: 'ferramentas', kind: 'multi', label: 'Sobre você', grid: true,
+      text: 'Quais ferramentas você já usa?', em: 'ferramentas',
+      hint: 'Pode marcar quantas quiser.',
       options: [
         'WhatsApp', 'E-mail', 'Planilhas (Excel ou Google Sheets)', 'CRM',
         'ERP', 'E-commerce', 'Sistema próprio', 'Nenhuma ainda',
@@ -117,7 +123,38 @@
     },
   ];
 
-  const STEPS = QUESTIONS.map((q) => Object.assign({ type: 'single', scored: true }, q)).concat(PROFILE);
+  // Telas de contato, depois do resultado parcial
+  const GATE_LABEL = 'Relatório completo';
+  const GATE = [
+    {
+      id: 'nome', kind: 'text', mask: 'nome', autocomplete: 'name', required: true, label: GATE_LABEL,
+      title: 'Para receber o relatório completo, qual o seu <em>nome</em>?', placeholder: 'Seu nome',
+    },
+    {
+      id: 'email', kind: 'email', mask: 'email', autocomplete: 'email', required: true, label: GATE_LABEL,
+      title: 'Qual o seu melhor <em>e-mail</em>?', placeholder: 'voce@empresa.com.br',
+      hint: 'É por aqui que enviamos o seu relatório.',
+    },
+    {
+      id: 'whatsapp', kind: 'tel', mask: 'telefone', autocomplete: 'tel', required: true, label: GATE_LABEL,
+      title: 'E o seu <em>WhatsApp</em>?', placeholder: '(21) 99999-9999',
+      hint: 'Com DDD. Só usamos para contato se você autorizar na próxima tela.',
+    },
+    {
+      id: 'empresa', kind: 'text', mask: 'empresa', autocomplete: 'organization', required: false, label: GATE_LABEL,
+      title: 'Qual o nome da sua <em>empresa</em>?', placeholder: 'Nome da empresa',
+      hint: 'Opcional. Pode seguir sem preencher.',
+    },
+    {
+      id: 'consent', kind: 'consent', label: GATE_LABEL,
+      title: 'Para finalizar, <em>autorize</em> o envio',
+      hintHtml: 'Leia a <a href="/privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>. A segunda opção é opcional.',
+      options: [
+        { key: 'politica', required: true, text: 'Li e aceito a Política de Privacidade e autorizo o uso dos meus dados para gerar e enviar o relatório.' },
+        { key: 'contato', required: false, text: 'Aceito receber contato da Whatchat por WhatsApp ou e-mail sobre propostas e serviços de automação. Posso revogar quando quiser.' },
+      ],
+    },
+  ];
 
   const STAGES = [
     {
@@ -142,204 +179,132 @@
     },
   ];
 
+  // Ordem das telas. Os ids de pergunta e de contato são as próprias chaves das respostas.
+  const ORDER = ['intro']
+    .concat(QUIZ.map((q) => q.id), ['result'], GATE.map((g) => g.id), ['done']);
+  const byId = {};
+  QUIZ.concat(GATE).forEach((q) => { byId[q.id] = q; });
+
   const $ = (id) => document.getElementById(id);
-  const screens = { intro: $('dxIntro'), quiz: $('dxQuiz'), result: $('dxResult'), done: $('dxDone') };
+  const stage = $('dxStage');
+  const bar = $('dxBar');
+  const progress = $('dxProgress');
+  const actions = $('dxActions');
+  const nextBtn = $('dxNext');
+  const nextLabel = $('dxNextLabel');
+  const backBtn = $('dxBack');
+  const enterHint = $('dxEnter');
 
-  let step = 0;
-  const answers = {};   // id -> índice (única) ou lista de textos (múltipla)
+  const answers = { consent: {} };
+  const history = [];
+  let view = 'intro';
   let result = null;
+  let sending = false;
 
-  function show(name) {
-    Object.keys(screens).forEach((key) => { screens[key].hidden = key !== name; });
-    window.scrollTo(0, 0);
-    const heading = screens[name].querySelector('[tabindex="-1"]');
-    if (heading) heading.focus({ preventScroll: true });
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  function titleHtml(q) {
+    if (q.title) return q.title;
+    const safe = esc(q.text);
+    return q.em ? safe.replace(esc(q.em), '<em>' + esc(q.em) + '</em>') : safe;
   }
 
-  // ── Perguntas ──
-  function isAnswered(q) {
-    if (q.type === 'multi') return true; // pode seguir sem marcar nada
-    return answers[q.id] !== undefined;
-  }
+  // ── Máscaras e validação ──
+  const MASKS = {
+    nome: (v) => v.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ'’\- ]/g, '').replace(/\s{2,}/g, ' ').replace(/^\s+/, '').slice(0, 80),
+    empresa: (v) => v.replace(/\s{2,}/g, ' ').replace(/^\s+/, '').slice(0, 80),
+    email: (v) => v.replace(/\s/g, '').toLowerCase().slice(0, 120),
+    telefone: (v) => {
+      const d = v.replace(/\D/g, '').slice(0, 11);
+      if (!d.length) return '';
+      if (d.length <= 2) return '(' + d;
+      if (d.length <= 6) return '(' + d.slice(0, 2) + ') ' + d.slice(2);
+      if (d.length <= 10) return '(' + d.slice(0, 2) + ') ' + d.slice(2, 6) + '-' + d.slice(6);
+      return '(' + d.slice(0, 2) + ') ' + d.slice(2, 7) + '-' + d.slice(7);
+    },
+  };
 
-  function renderStep() {
-    const q = STEPS[step];
-    const total = STEPS.length;
-    $('dxCount').textContent = 'Pergunta ' + (step + 1) + ' de ' + total;
-    $('dxArea').textContent = q.scored ? AREAS.find((a) => a.id === q.area).name : q.label;
-    $('dxBar').style.width = ((step + 1) / total * 100) + '%';
-    $('dxBar').parentElement.setAttribute('aria-valuenow', String(step + 1));
-    $('dxNext').textContent = step === total - 1 ? 'Ver meu resultado' : 'Continuar';
-
-    const box = $('dxQuestion');
-    box.textContent = '';
-    const fieldset = document.createElement('fieldset');
-    fieldset.className = 'dx-fieldset';
-    const legend = document.createElement('legend');
-    legend.className = 'dx-question';
-    legend.tabIndex = -1;
-    legend.textContent = q.text;
-    fieldset.appendChild(legend);
-    if (q.hint) {
-      const hint = document.createElement('p');
-      hint.className = 'dx-hint';
-      hint.textContent = q.hint;
-      fieldset.appendChild(hint);
+  function validate(q) {
+    if (q.kind === 'choice') return answers[q.id] === undefined ? 'Escolha uma opção para continuar.' : null;
+    if (q.kind === 'multi') return null; // pode seguir sem marcar nada
+    if (q.kind === 'consent') {
+      return answers.consent.politica ? null : 'Para receber o relatório, aceite a Política de Privacidade.';
     }
-
-    const list = document.createElement('div');
-    list.className = 'dx-options' + (q.type === 'multi' ? ' dx-options--chips' : '');
-    q.options.forEach((text, index) => {
-      const label = document.createElement('label');
-      label.className = 'dx-option' + (q.type === 'multi' ? ' dx-option--multi' : '');
-      const input = document.createElement('input');
-      input.type = q.type === 'multi' ? 'checkbox' : 'radio';
-      input.name = 'dx-' + q.id;
-      input.value = String(index);
-      if (q.type === 'multi') input.checked = (answers[q.id] || []).indexOf(text) !== -1;
-      else input.checked = answers[q.id] === index;
-      const dot = document.createElement('span');
-      dot.className = 'dx-option__dot';
-      const span = document.createElement('span');
-      span.textContent = text;
-      label.append(input, dot, span);
-      list.appendChild(label);
-
-      input.addEventListener('change', () => onChoose(q, index, text, list));
-    });
-    fieldset.appendChild(list);
-    box.appendChild(fieldset);
-
-    $('dxNext').disabled = !isAnswered(q);
-    legend.focus({ preventScroll: true });
-  }
-
-  let advanceTimer = null;
-  function onChoose(q, index, text, list) {
-    if (q.type === 'multi') {
-      const inputs = Array.from(list.querySelectorAll('input'));
-      const picked = [];
-      inputs.forEach((input, i) => {
-        const optionText = q.options[i];
-        if (!input.checked) return;
-        if (q.exclusive && text === q.exclusive && optionText !== q.exclusive) { input.checked = false; return; }
-        if (q.exclusive && text !== q.exclusive && optionText === q.exclusive) { input.checked = false; return; }
-        picked.push(optionText);
-      });
-      answers[q.id] = picked;
-      return;
+    const v = String(answers[q.id] || '').trim();
+    if (!v) return q.required ? 'Este campo é obrigatório.' : null;
+    if (q.mask === 'nome' && v.length < 2) return 'Digite o seu nome.';
+    if (q.kind === 'email' && !/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(v)) return 'Digite um e-mail válido.';
+    if (q.kind === 'tel') {
+      const d = v.replace(/\D/g, '');
+      if (d.length < 10) return 'Digite o número completo com DDD.';
+      if (d.length === 11 && d[2] !== '9') return 'Verifique o número: celular começa com 9 depois do DDD.';
     }
-    answers[q.id] = index;
-    $('dxNext').disabled = false;
-    clearTimeout(advanceTimer);
-    advanceTimer = setTimeout(goNext, 260); // avança sozinho; "Voltar" corrige
+    return null;
   }
 
-  function goNext() {
-    clearTimeout(advanceTimer);
-    if (!isAnswered(STEPS[step])) return;
-    if (step < STEPS.length - 1) { step += 1; renderStep(); return; }
-    showResult();
-  }
-
-  function goBack() {
-    clearTimeout(advanceTimer);
-    if (step === 0) { show('intro'); return; }
-    step -= 1;
-    renderStep();
+  function showError(message) {
+    const el = $('dxErr');
+    if (!el) return;
+    el.textContent = message || '';
+    el.classList.toggle('on', Boolean(message));
   }
 
   // ── Resultado ──
   function compute() {
     const points = {};
     AREAS.forEach((a) => { points[a.id] = 0; });
-    QUESTIONS.forEach((q) => { points[q.area] += answers[q.id]; });
+    QUIZ.filter((q) => q.scored).forEach((q) => { points[q.area] += answers[q.id]; });
     const total = AREAS.reduce((sum, a) => sum + points[a.id], 0);
-    const stage = STAGES.find((s) => total <= s.max);
+    const stageInfo = STAGES.find((s) => total <= s.max);
     const areas = AREAS.map((a) => {
       const p = points[a.id];
       const level = p <= a.max / 3 + 1e-9 ? 1 : p <= (2 * a.max) / 3 + 1e-9 ? 2 : 3;
       return { id: a.id, name: a.name, points: p, max: a.max, level: level };
     });
-    return { total: total, maxTotal: 24, stage: stage, areas: areas };
+    return { total: total, maxTotal: 24, stage: stageInfo, areas: areas };
   }
 
-  function showResult() {
-    result = compute();
-    const stageIndex = STAGES.indexOf(result.stage);
-    $('dxStageName').textContent = result.stage.name;
-    $('dxScore').textContent = 'Estágio ' + (stageIndex + 1) + ' de 4 · ' + result.total + ' de ' + result.maxTotal + ' pontos';
-    $('dxStageText').textContent = result.stage.text;
-    $('dxTip').textContent = result.stage.tip;
-
-    const track = $('dxTrack');
-    track.textContent = '';
-    STAGES.forEach((s, i) => {
-      const li = document.createElement('li');
-      if (i < stageIndex) li.className = 'is-done';
-      if (i === stageIndex) { li.className = 'is-current'; li.setAttribute('aria-current', 'step'); }
-      li.textContent = s.short;
-      track.appendChild(li);
-    });
-
-    const areas = $('dxAreas');
-    areas.textContent = '';
-    result.areas.forEach((a) => {
-      const li = document.createElement('li');
-      const name = document.createElement('span');
-      name.className = 'dx-areas__name';
-      name.textContent = a.name;
-      const level = document.createElement('span');
-      level.className = 'dx-areas__level';
-      level.textContent = LEVELS[a.level - 1];
-      const seg = document.createElement('span');
-      seg.className = 'dx-seg';
-      seg.setAttribute('aria-hidden', 'true');
-      for (let i = 1; i <= 3; i++) {
-        const s = document.createElement('i');
-        if (i <= a.level) s.className = 'on';
-        seg.appendChild(s);
+  // ── Origem do acesso (só o que veio na URL e o domínio de referência) ──
+  function attribution() {
+    const utm = {};
+    const params = new URLSearchParams(window.location.search);
+    params.forEach((value, key) => { if (key.indexOf('utm_') === 0) utm[key] = value.slice(0, 200); });
+    let referrer = null;
+    try {
+      if (document.referrer) {
+        const host = new URL(document.referrer).hostname.replace(/^www\./, '');
+        if (host !== window.location.hostname.replace(/^www\./, '')) referrer = host;
       }
-      li.append(name, level, seg);
-      areas.appendChild(li);
-    });
-
-    show('result');
+    } catch (e) { /* referrer inválido: ignora */ }
+    return { utm: utm, referrer_dominio: referrer };
   }
 
-  // ── Envio ──
-  function utmParams() {
-    const out = {};
-    new URLSearchParams(window.location.search).forEach((value, key) => {
-      if (key.indexOf('utm_') === 0) out[key] = value.slice(0, 200);
-    });
-    return out;
-  }
-
-  function buildPayload(contact, contactConsent) {
-    const respostas = STEPS.map((q) => {
+  function buildPayload() {
+    const respostas = QUIZ.map((q) => {
       const a = answers[q.id];
       const base = { id: q.id, pergunta: q.text };
-      if (q.type === 'multi') return Object.assign(base, { resposta: a || [] });
+      if (q.kind === 'multi') return Object.assign(base, { resposta: a || [] });
       return Object.assign(base, { resposta: q.options[a], valor: q.scored ? a : null });
     });
     const areas = {};
     result.areas.forEach((a) => {
       areas[a.id] = { nome: a.name, pontos: a.points, maximo: a.max, nivel: LEVELS[a.level - 1] };
     });
+    const origin = attribution();
     return {
       origem: 'autodiagnostico',
       versao_textos: TEXT_VERSION,
       data_hora: new Date().toISOString(),
       pagina: window.location.origin + window.location.pathname,
-      utm: utmParams(),
-      nome: contact.nome,
-      email: contact.email,
-      whatsapp: contact.whatsapp,
-      empresa: contact.empresa,
+      utm: origin.utm,
+      referrer_dominio: origin.referrer_dominio,
+      nome: String(answers.nome || '').trim(),
+      email: String(answers.email || '').trim(),
+      whatsapp: String(answers.whatsapp || '').trim(),
+      empresa: String(answers.empresa || '').trim(),
       consentimentos: {
-        politica_privacidade: true,
-        contato_comercial: contactConsent,
+        politica_privacidade: answers.consent.politica === true,
+        contato_comercial: answers.consent.contato === true,
       },
       resultado: {
         pontuacao: result.total,
@@ -349,66 +314,271 @@
         areas: areas,
       },
       perfil: {
-        tamanho: PROFILE[0].options[answers.tamanho],
+        tamanho: byId.tamanho.options[answers.tamanho],
         ferramentas: answers.ferramentas || [],
       },
       respostas: respostas,
     };
   }
 
-  function showFormError(message) {
-    const el = $('dxFormError');
-    el.textContent = message;
-    el.hidden = !message;
+  async function send() {
+    if ($('dxWebsite').value) return true; // campo isca preenchido: provável robô, finge sucesso
+    const response = await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(buildPayload()),
+    });
+    return response.ok;
   }
 
-  async function onSubmit(event) {
-    event.preventDefault();
-    showFormError('');
+  // ── Renderização ──
+  function eyebrowHtml(text) { return '<div class="anim dx-eyebrow">' + esc(text) + '</div>'; }
 
-    // Campo isca preenchido: provável robô, finge sucesso sem enviar
-    if ($('dxWebsite').value) { $('dxDoneEmail').textContent = $('dxEmail').value; show('done'); return; }
+  function renderIntro() {
+    return eyebrowHtml('Autodiagnóstico · cerca de 3 minutos') +
+      '<h1 class="anim dx-title dx-title--xl" tabindex="-1">Em que estágio da <em>automação</em> sua empresa está?</h1>' +
+      '<p class="anim dx-lead">Responda 10 perguntas rápidas e veja seu estágio na hora, com uma primeira diretriz prática. O relatório completo, com prioridades e próximos passos, chega no seu e-mail.</p>';
+  }
 
-    const contact = {
-      nome: $('dxName').value.trim(),
-      email: $('dxEmail').value.trim(),
-      whatsapp: $('dxPhone').value.trim(),
-      empresa: $('dxCompany').value.trim(),
-    };
-    if (!contact.nome) { showFormError('Informe seu nome.'); $('dxName').focus(); return; }
-    if (!$('dxEmail').checkValidity() || !contact.email) { showFormError('Informe um e-mail válido.'); $('dxEmail').focus(); return; }
-    const digits = contact.whatsapp.replace(/\D/g, '');
-    if (digits.length < 10 || digits.length > 13) { showFormError('Informe um WhatsApp válido, com DDD.'); $('dxPhone').focus(); return; }
-    if (!$('dxConsentPolicy').checked) { showFormError('Para receber o relatório, aceite a Política de Privacidade.'); $('dxConsentPolicy').focus(); return; }
+  function renderChoice(q, index, total) {
+    const multi = q.kind === 'multi';
+    const selected = multi ? (answers[q.id] || []) : [q.options[answers[q.id]]];
+    const label = q.scored ? AREAS.find((a) => a.id === q.area).name : q.label;
+    return '<div class="anim dx-qnum">Pergunta ' + String(index).padStart(2, '0') + ' de ' + total + ' · ' + esc(label) + '</div>' +
+      '<h2 class="anim dx-title" tabindex="-1">' + titleHtml(q) + '</h2>' +
+      (q.hint ? '<p class="anim dx-hint">' + esc(q.hint) + '</p>' : '') +
+      '<div class="anim dx-options' + (q.grid ? ' dx-options--grid' : '') + '" role="' + (multi ? 'group' : 'radiogroup') + '">' +
+      q.options.map((text, n) =>
+        '<button type="button" class="dx-opt' + (selected.indexOf(text) !== -1 ? ' is-selected' : '') + '" data-i="' + n + '"' +
+        ' role="' + (multi ? 'checkbox' : 'radio') + '" aria-checked="' + (selected.indexOf(text) !== -1) + '">' +
+        '<span class="dx-key">' + String.fromCharCode(65 + n) + '</span><span>' + esc(text) + '</span></button>').join('') +
+      '</div><div class="dx-err" id="dxErr" role="alert"></div>';
+  }
 
-    const button = $('dxSubmit');
-    button.disabled = true;
-    button.textContent = 'Enviando…';
+  function renderField(q, step, total) {
+    return '<div class="anim dx-qnum">' + esc(q.label) + ' · ' + step + ' de ' + total + '</div>' +
+      '<h2 class="anim dx-title" tabindex="-1">' + q.title + '</h2>' +
+      (q.hint ? '<p class="anim dx-hint">' + esc(q.hint) + '</p>' : '') +
+      '<div class="anim dx-field"><input id="dxInp" type="' + (q.kind === 'tel' ? 'tel' : q.kind === 'email' ? 'email' : 'text') + '"' +
+      ' autocomplete="' + q.autocomplete + '" autocapitalize="' + (q.kind === 'email' ? 'off' : 'words') + '"' +
+      (q.kind === 'tel' ? ' inputmode="tel"' : '') + ' spellcheck="false" aria-label="' + esc(q.placeholder) + '"' +
+      ' placeholder="' + esc(q.placeholder) + '" value="' + esc(answers[q.id] || '') + '"><span class="dx-field__line"></span></div>' +
+      '<div class="dx-err" id="dxErr" role="alert"></div>';
+  }
 
-    try {
-      const response = await fetch(WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(buildPayload(contact, $('dxConsentContact').checked)),
-      });
-      if (!response.ok) throw new Error('HTTP ' + response.status);
-      $('dxDoneEmail').textContent = contact.email;
-      show('done');
-    } catch (err) {
-      showFormError('Não consegui enviar agora. Tente de novo em instantes ou fale comigo pelo WhatsApp.');
-      button.disabled = false;
-      button.textContent = 'Receber relatório completo';
+  function renderConsent(q, step, total) {
+    return '<div class="anim dx-qnum">' + esc(q.label) + ' · ' + step + ' de ' + total + '</div>' +
+      '<h2 class="anim dx-title" tabindex="-1">' + q.title + '</h2>' +
+      '<p class="anim dx-hint">' + q.hintHtml + '</p>' +
+      '<div class="anim dx-options" role="group">' +
+      q.options.map((o, n) =>
+        '<button type="button" class="dx-opt' + (answers.consent[o.key] ? ' is-selected' : '') + '" data-key="' + o.key + '"' +
+        ' role="checkbox" aria-checked="' + Boolean(answers.consent[o.key]) + '">' +
+        '<span class="dx-key">' + String.fromCharCode(65 + n) + '</span><span>' + esc(o.text) + '</span></button>').join('') +
+      '</div><div class="dx-err" id="dxErr" role="alert"></div>';
+  }
+
+  function renderResult() {
+    const stageIndex = STAGES.indexOf(result.stage);
+    const track = STAGES.map((s, i) =>
+      '<li class="' + (i < stageIndex ? 'is-done' : i === stageIndex ? 'is-current' : '') + '"' +
+      (i === stageIndex ? ' aria-current="step"' : '') + '>' + esc(s.short) + '</li>').join('');
+    const areas = result.areas.map((a) =>
+      '<li><span class="dx-areas__name">' + esc(a.name) + '</span><span class="dx-areas__level">' + LEVELS[a.level - 1] + '</span>' +
+      '<span class="dx-seg" aria-hidden="true">' + [1, 2, 3].map((n) => '<i' + (n <= a.level ? ' class="on"' : '') + '></i>').join('') + '</span></li>').join('');
+    return eyebrowHtml('Seu resultado') +
+      '<h1 class="anim dx-title dx-title--xl" tabindex="-1">' + esc(result.stage.name) + '</h1>' +
+      '<p class="anim dx-score">Estágio ' + (stageIndex + 1) + ' de 4 · ' + result.total + ' de ' + result.maxTotal + ' pontos</p>' +
+      '<div class="anim"><ol class="dx-track" aria-label="Estágios de automação">' + track + '</ol>' +
+      '<p class="dx-lead">' + esc(result.stage.text) + '</p>' +
+      '<h2 class="dx-h3">Como você está em cada área</h2>' +
+      '<ul class="dx-areas">' + areas + '</ul>' +
+      '<div class="dx-tip"><p class="dx-tip__label">Primeiro passo recomendado</p><p>' + esc(result.stage.tip) + '</p></div>' +
+      '<p class="dx-teaser">No relatório completo: nota detalhada por área, as três automações que eu priorizaria para o seu perfil e um roteiro de próximos passos.</p></div>';
+  }
+
+  function renderDone() {
+    const first = String(answers.nome || '').trim().split(' ')[0];
+    return eyebrowHtml('Relatório enviado') +
+      '<h1 class="anim dx-title dx-title--xl" tabindex="-1">Seu relatório está a caminho' + (first ? ', <em>' + esc(first) + '</em>' : '') + '.</h1>' +
+      '<p class="anim dx-lead">Enviei para <strong>' + esc(answers.email) + '</strong>. Se não aparecer em alguns minutos, confira a caixa de spam.</p>' +
+      '<p class="anim dx-lead">Quer ir além do relatório? No diagnóstico gratuito, olhamos juntos os seus processos e eu aponto por onde começar.</p>' +
+      '<div class="anim dx-done__btns"><a href="https://wa.me/5521995132305" class="btn btn--primary btn--lg" target="_blank" rel="noopener">Falar no WhatsApp</a>' +
+      '<a href="/#contato" class="btn btn--ghost btn--lg">Solicitar diagnóstico gratuito</a></div>';
+  }
+
+  function render() {
+    stage.textContent = '';
+    stage.scrollTop = 0;
+    const section = document.createElement('section');
+    section.className = 'dx-screen';
+    const pos = ORDER.indexOf(view);
+    const quizIndex = QUIZ.findIndex((q) => q.id === view);
+    const gateIndex = GATE.findIndex((g) => g.id === view);
+    let q = null;
+
+    if (view === 'intro') {
+      section.innerHTML = renderIntro();
+      nextLabel.textContent = 'Começar';
+    } else if (view === 'result') {
+      section.innerHTML = renderResult();
+      nextLabel.textContent = 'Receber relatório';
+    } else if (view === 'done') {
+      section.innerHTML = renderDone();
+    } else if (quizIndex >= 0) {
+      q = QUIZ[quizIndex];
+      section.innerHTML = renderChoice(q, quizIndex + 1, QUIZ.length);
+      nextLabel.textContent = quizIndex === QUIZ.length - 1 ? 'Ver meu resultado' : 'Continuar';
+    } else {
+      q = GATE[gateIndex];
+      section.innerHTML = q.kind === 'consent' ? renderConsent(q, gateIndex + 1, GATE.length) : renderField(q, gateIndex + 1, GATE.length);
+      nextLabel.textContent = q.kind === 'consent' ? 'Enviar relatório' : 'Continuar';
     }
+
+    stage.appendChild(section);
+    const pct = Math.round((pos / (ORDER.length - 1)) * 100);
+    bar.style.width = pct + '%';
+    progress.setAttribute('aria-valuenow', String(pct));
+    actions.hidden = view === 'done';
+    backBtn.hidden = view === 'intro';
+    enterHint.hidden = !(q && (q.kind === 'text' || q.kind === 'email' || q.kind === 'tel'));
+    nextBtn.disabled = false;
+
+    if (q && (q.kind === 'text' || q.kind === 'email' || q.kind === 'tel')) bindField(q);
+    else if (q && q.kind === 'choice') bindChoice(q);
+    else if (q && q.kind === 'multi') bindMulti(q);
+    else if (q && q.kind === 'consent') bindConsent(q);
+    else { const h = section.querySelector('[tabindex="-1"]'); if (h) h.focus({ preventScroll: true }); }
   }
 
-  // ── Eventos ──
-  $('dxStart').addEventListener('click', () => { step = 0; show('quiz'); renderStep(); });
-  $('dxNext').addEventListener('click', goNext);
-  $('dxBack').addEventListener('click', goBack);
-  $('dxForm').addEventListener('submit', onSubmit);
-  $('dxRestart').addEventListener('click', () => {
-    Object.keys(answers).forEach((k) => { delete answers[k]; });
-    result = null; step = 0;
-    show('intro');
+  // ── Interação ──
+  function bindField(q) {
+    const input = $('dxInp');
+    requestAnimationFrame(() => { try { input.focus({ preventScroll: true }); } catch (e) { input.focus(); } });
+    input.addEventListener('input', () => {
+      const masked = MASKS[q.mask](input.value);
+      if (masked !== input.value) input.value = masked;
+      answers[q.id] = input.value;
+      showError('');
+    });
+    input.addEventListener('blur', () => { input.value = input.value.trim(); answers[q.id] = input.value; });
+  }
+
+  let advanceTimer = null;
+  function bindChoice(q) {
+    const buttons = stage.querySelectorAll('.dx-opt');
+    buttons.forEach((button) => button.addEventListener('click', () => {
+      answers[q.id] = Number(button.dataset.i);
+      buttons.forEach((b) => { b.classList.remove('is-selected'); b.setAttribute('aria-checked', 'false'); });
+      button.classList.add('is-selected');
+      button.setAttribute('aria-checked', 'true');
+      showError('');
+      clearTimeout(advanceTimer);
+      advanceTimer = setTimeout(advance, 240); // avança sozinho; "Voltar" corrige
+    }));
+  }
+
+  function bindMulti(q) {
+    const buttons = stage.querySelectorAll('.dx-opt');
+    buttons.forEach((button) => button.addEventListener('click', () => {
+      const text = q.options[Number(button.dataset.i)];
+      let picked = answers[q.id] || [];
+      if (text === q.exclusive) picked = picked.indexOf(text) !== -1 ? [] : [text];
+      else {
+        picked = picked.filter((t) => t !== q.exclusive);
+        picked = picked.indexOf(text) !== -1 ? picked.filter((t) => t !== text) : picked.concat(text);
+      }
+      answers[q.id] = picked;
+      buttons.forEach((b) => {
+        const on = picked.indexOf(q.options[Number(b.dataset.i)]) !== -1;
+        b.classList.toggle('is-selected', on);
+        b.setAttribute('aria-checked', String(on));
+      });
+    }));
+  }
+
+  function bindConsent() {
+    const buttons = stage.querySelectorAll('.dx-opt');
+    buttons.forEach((button) => button.addEventListener('click', () => {
+      const key = button.dataset.key;
+      answers.consent[key] = !answers.consent[key];
+      button.classList.toggle('is-selected', answers.consent[key]);
+      button.setAttribute('aria-checked', String(answers.consent[key]));
+      showError('');
+    }));
+  }
+
+  function leave(then) {
+    const screen = stage.querySelector('.dx-screen');
+    if (screen) screen.classList.add('is-leaving');
+    setTimeout(then, 200);
+  }
+
+  async function advance() {
+    clearTimeout(advanceTimer);
+    if (sending) return;
+
+    if (view === 'intro' || view === 'result') {
+      leave(() => { history.push(view); view = ORDER[ORDER.indexOf(view) + 1]; render(); });
+      return;
+    }
+    const q = byId[view];
+    const error = validate(q);
+    if (error) { showError(error); return; }
+
+    // Última pergunta: calcula o resultado antes de mostrar
+    if (view === QUIZ[QUIZ.length - 1].id) result = compute();
+
+    if (view === 'consent') {
+      sending = true;
+      nextBtn.disabled = true;
+      nextLabel.textContent = 'Enviando…';
+      try {
+        const ok = await send();
+        if (!ok) throw new Error('webhook');
+        sending = false;
+        leave(() => { history.push(view); view = 'done'; render(); });
+      } catch (err) {
+        sending = false;
+        nextBtn.disabled = false;
+        nextLabel.textContent = 'Enviar relatório';
+        showError('Não consegui enviar agora. Tente de novo em instantes ou fale comigo pelo WhatsApp.');
+      }
+      return;
+    }
+    leave(() => { history.push(view); view = ORDER[ORDER.indexOf(view) + 1]; render(); });
+  }
+
+  function back() {
+    clearTimeout(advanceTimer);
+    if (sending || !history.length) return;
+    leave(() => { view = history.pop(); render(); });
+  }
+
+  nextBtn.addEventListener('click', advance);
+  backBtn.addEventListener('click', back);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (view === 'done') return;
+    const input = $('dxInp');
+
+    if (e.key === 'Enter') {
+      if (e.target && e.target.closest && e.target.closest('a')) return;
+      e.preventDefault();
+      advance();
+      return;
+    }
+    if (input) {
+      // se o foco escapou do campo, a primeira tecla o traz de volta
+      if (document.activeElement !== input && e.key.length === 1) input.focus({ preventScroll: true });
+      return;
+    }
+    // atalhos A, B, C… nas telas de escolha
+    const buttons = stage.querySelectorAll('.dx-opt');
+    const index = e.key.length === 1 ? e.key.toUpperCase().charCodeAt(0) - 65 : -1;
+    if (index >= 0 && index < buttons.length) { e.preventDefault(); buttons[index].click(); }
   });
+
+  render();
 })();
