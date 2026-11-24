@@ -2,7 +2,17 @@
 
 Esta pasta **não é publicada no site** (está no `.dockerignore`). Os textos completos do relatório ficam aqui e no N8N, nunca no JavaScript do site, porque é isso que sustenta a troca "relatório completo por contato".
 
-## 1. Workflow no N8N
+## 0. Estado atual
+
+O workflow **"Autodiagnóstico Whatchat"** (id `62bSbVB1rwMtAYBr`) já foi criado no N8N, **sem publicar**. Ele faz: receber → validar → enviar o relatório pelo Resend → avisar você → responder 200 (ou 400 se os dados forem inválidos). Os textos do relatório estão no nó Code dele.
+
+Falta:
+1. Criar a credencial **Resend API** (Header Auth: nome `Authorization`, valor `Bearer re_...`) e ligá-la aos dois nós HTTP Request.
+2. Verificar o domínio no Resend e ajustar `FROM` no nó Code, se o endereço for outro.
+3. Salvar o lead de forma permanente (planilha, CRM ou banco). O workflow ainda **não grava** nada: o aviso por e-mail e o histórico de execuções do N8N não substituem um registro do consentimento.
+4. Publicar o workflow e fazer um envio de teste pelo site.
+
+## 1. Workflow no N8N (referência)
 
 Webhook de entrada: `POST https://webhook.whatchat.app.br/webhook/diagnostico-whatchat`
 (o caminho é a constante `WEBHOOK_URL` em `diagnostico.js`).
