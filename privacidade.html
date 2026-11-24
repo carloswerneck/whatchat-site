@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     .legal-page {
       padding: 120px 0 80px;
@@ -15,8 +15,8 @@
     }
     .legal-page h1 {
       font-size: clamp(1.8rem, 4vw, 2.5rem);
-      font-weight: 700;
-      letter-spacing: -.02em;
+      font-weight: 500;
+      letter-spacing: -.01em;
       margin-bottom: 8px;
     }
     .legal-page .updated {
@@ -26,9 +26,9 @@
       margin-bottom: 56px;
     }
     .legal-page h2 {
-      font-size: 1.15rem;
-      font-weight: 600;
-      color: var(--accent);
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--text);
       margin: 40px 0 12px;
     }
     .legal-page p,
@@ -45,11 +45,12 @@
       margin-bottom: 6px;
     }
     .legal-page a {
-      color: var(--accent);
-      text-decoration: none;
+      color: var(--text);
+      text-decoration: underline;
+      text-underline-offset: 2px;
     }
     .legal-page a:hover {
-      text-decoration: underline;
+      color: var(--text-2);
     }
     .back-link {
       display: inline-flex;
@@ -60,9 +61,9 @@
       color: var(--text-muted);
       text-decoration: none;
       margin-bottom: 40px;
-      transition: color .2s;
+      transition: color .15s var(--ease);
     }
-    .back-link:hover { color: var(--accent); }
+    .back-link:hover { color: var(--text); }
   </style>
 </head>
 <body>
@@ -75,10 +76,10 @@
 
   <section class="legal-page">
     <div class="container">
-      <a href="/" class="back-link">← Voltar ao site</a>
-      <div class="section-label">// privacidade</div>
-      <h1>Política de <span class="accent">Privacidade</span></h1>
-      <p class="updated">Última atualização: 16 de junho de 2026</p>
+      <a href="/" class="back-link">Voltar ao site</a>
+      <div class="section-label">Privacidade</div>
+      <h1>Política de Privacidade</h1>
+      <p class="updated">Última atualização: 24 de novembro de 2026</p>
 
       <p>Esta Política de Privacidade descreve como a <strong>Whatchat</strong> ("nós", "nosso" ou "nos") coleta, usa e protege as informações que você fornece ao utilizar nosso site e nossos serviços de automação e integração de sistemas.</p>
 
@@ -90,12 +91,15 @@
         <li>Nome da empresa</li>
         <li>Mensagem ou descrição do projeto</li>
       </ul>
+      <p>Ao fazer o autodiagnóstico de automação, também coletamos o seu número de WhatsApp, as respostas ao questionário (incluindo tamanho da empresa e ferramentas utilizadas), a pontuação e o estágio resultantes, além das suas escolhas de consentimento, com data e versão do texto aceito.</p>
       <p>Também podemos coletar automaticamente dados de navegação como endereço IP, tipo de navegador e páginas acessadas, por meio de ferramentas de análise.</p>
 
       <h2>2. Como usamos suas informações</h2>
       <p>Utilizamos os dados coletados exclusivamente para:</p>
       <ul>
         <li>Responder às suas solicitações de contato e diagnóstico</li>
+        <li>Gerar o relatório do autodiagnóstico e enviá-lo ao seu e-mail</li>
+        <li>Entrar em contato por WhatsApp ou e-mail sobre propostas e serviços, somente se você autorizar essa opção ao fazer o autodiagnóstico</li>
         <li>Apresentar propostas e orçamentos personalizados</li>
         <li>Enviar comunicações relacionadas aos serviços contratados</li>
         <li>Melhorar a experiência do site e nossos serviços</li>
@@ -103,7 +107,7 @@
       <p>Não utilizamos seus dados para envio de spam ou marketing não solicitado.</p>
 
       <h2>3. Compartilhamento de dados</h2>
-      <p>Não vendemos, alugamos ou compartilhamos suas informações pessoais com terceiros, exceto quando necessário para a prestação dos serviços contratados (ex.: ferramentas de e-mail e CRM utilizadas no processo de atendimento), sempre com cláusulas de confidencialidade.</p>
+      <p>Não vendemos, alugamos ou compartilhamos suas informações pessoais com terceiros, exceto quando necessário para a prestação dos serviços contratados (ex.: ferramentas de automação, de envio de e-mail e de CRM utilizadas no processo de atendimento e no envio do relatório), sempre com cláusulas de confidencialidade.</p>
 
       <h2>4. Segurança</h2>
       <p>Adotamos medidas técnicas e organizacionais para proteger seus dados contra acesso não autorizado, alteração, divulgação ou destruição. No entanto, nenhum método de transmissão pela internet é 100% seguro.</p>
